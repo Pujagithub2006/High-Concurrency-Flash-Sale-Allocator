@@ -1,0 +1,120 @@
+# .github/workflows/create-issues.yml
+name: Create BBD Project Issues
+
+on:
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+jobs:
+  create-issues:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Create All 8 BBD Project Issues via GitHub CLI
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Issue 1
+          gh issue create --title "Issue 1: Project Setup & Maven Dependencies" --body "$(cat << 'EOF'
+          ### Objectives
+          - Initialize pure Java 17 project without Spring Boot dependencies.
+          - Configure `pom.xml` with `spring-context`, `spring-aop`, `aspectjweaver`, and `javax.annotation-api`.
+
+          ### Acceptance Criteria
+          - [ ] Project compiles with JDK 17 target.
+          - [ ] All Spring 5.3.x dependencies resolved cleanly.
+          EOF
+          )" --label "setup"
+
+          # Issue 2
+          gh issue create --title "Issue 2: Data Repositories & Dependency Injection" --body "$(cat << 'EOF'
+          ### Objectives
+          - Implement `InventoryRepository` interface.
+          - Implement `MySQLInventoryRepository` annotated with `@Primary` and `@Repository`.
+          - Implement `RedisInventoryRepository` annotated with `@Qualifier("fastCache")` and `@Repository`.
+
+          ### Acceptance Criteria
+          - [ ] Default autowiring targets `MySQLInventoryRepository`.
+          - [ ] Named autowiring targets `RedisInventoryRepository`.
+          EOF
+          )" --label "repository"
+
+          # Issue 3
+          gh issue create --title "Issue 3: Session Management & Prototype Scope Leakage Fix" --body "$(cat << 'EOF'
+          ### Objectives
+          - Create `@Scope("prototype")` `CheckoutSession` bean.
+          - Implement `FlashSaleOrderProcessor` service using `@Lookup` method injection.
+
+          ### Acceptance Criteria
+          - [ ] Invoking `createCheckoutSession()` inside Singleton returns a new instance every time.
+          - [ ] Class and `@Lookup` method remain non-final and public.
+          EOF
+          )" --label "session"
+
+          # Issue 4
+          gh issue create --title "Issue 4: Lifecycle Hooks & Container Extensions" --body "$(cat << 'EOF'
+          ### Objectives
+          - Implement `SystemHealthCheck` with `BeanNameAware`, `@PostConstruct`, `InitializingBean`, `@PreDestroy`, and `DisposableBean`.
+          - Implement `FlashSaleBeanFactoryPostProcessor` implementing `BeanFactoryPostProcessor`.
+          - Implement `BBDCoreServiceAuditPostProcessor` implementing `BeanPostProcessor`.
+
+          ### Acceptance Criteria
+          - [ ] Container boot logs verify correct lifecycle execution order.
+          - [ ] `BeanPostProcessor` wraps dynamic proxies post-initialization.
+          EOF
+          )" --label "lifecycle"
+
+          # Issue 5
+          gh issue create --title "Issue 5: AOP Interception & Self-Invocation Fix" --body "$(cat << 'EOF'
+          ### Objectives
+          - Create custom annotation `@BBDDiscount`.
+          - Implement `@Aspect` `BankDiscountAspect` with `@Around` advice.
+          - Implement `DiscountPricingEngine` using `AopContext.currentProxy()` for internal method calls.
+
+          ### Acceptance Criteria
+          - [ ] Aspect triggers on external and internal method calls.
+          - [ ] `exposeProxy = true` configured on context configuration.
+          EOF
+          )" --label "aop"
+
+          # Issue 6
+          gh issue create --title "Issue 6: Third-Party SDK Integration via FactoryBean" --body "$(cat << 'EOF'
+          ### Objectives
+          - Create third-party client `HDFCBankPaymentClient`.
+          - Implement `HDFCBankClientFactoryBean` implementing `FactoryBean<HDFCBankPaymentClient>`.
+
+          ### Acceptance Criteria
+          - [ ] Requesting `HDFCBankPaymentClient.class` returns product object.
+          - [ ] Requesting `&hdfcClientFactory` returns factory bean instance itself.
+          EOF
+          )" --label "factory-bean"
+
+          # Issue 7
+          gh issue create --title "Issue 7: SpEL Config & Decoupled Event Pipeline" --body "$(cat << 'EOF'
+          ### Objectives
+          - Implement `FlashSaleConfig` with SpEL expressions (`#{...}`) and property resolution (`${...}`).
+          - Implement `OrderPlacedEvent` extending `ApplicationEvent`.
+          - Implement `FlashSaleEventListener` with standard and conditional (`@EventListener(condition = "...")`) listeners.
+
+          ### Acceptance Criteria
+          - [ ] SpEL evaluates dynamic expressions on startup.
+          - [ ] VIP conditional listener triggers only for VIP event payloads.
+          EOF
+          )" --label "spel-events"
+
+          # Issue 8
+          gh issue create --title "Issue 8: App Orchestration & Context Bootstrap" --body "$(cat << 'EOF'
+          ### Objectives
+          - Create `BigBillionDaysApplication` main config annotated with `@Configuration`, `@ComponentScan`, and `@EnableAspectJAutoProxy(exposeProxy = true)`.
+          - Bootstrap `AnnotationConfigApplicationContext` in `main` method.
+          - Verify execution output and invoke `context.close()`.
+
+          ### Acceptance Criteria
+          - [ ] Clean container startup and shutdown with zero errors.
+          - [ ] Full console log matches execution pipeline.
+          EOF
+          )" --label "orchestration"
